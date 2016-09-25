@@ -12062,9 +12062,9 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答:</strong>
-95号样本的采购额以杂货、奶制品为主，其次是熟食、冷冻食品，且采购总额度比较小，客户是小规模的便利超市的可能性比较大</p>
-<p>100号客户主要采购的是杂货、生食、清洁纸，额度相对较低的熟食和冷冻品相对也不低，因此100号客户很可能属于稍大规模的零售商</p>
-<p>400号客户的各项采购额度普遍较小，但主要以生食、熟食、冷冻品为主，很有可能是小型的饭馆</p>
+95号样本的Fresh、Frozen和Delicatessen的采购额都远低于平均值，同时其Detergents_Paper的消费也很低，甚至不及25%分位，只有Milk和Grocery的采购额接近平均值，因此客户可能是零售商</p>
+<p>100号客户的Fresh、Frozen的采购额度和平均值持平，同时Milk、Grocery和Detergent_Paper的消费均高于平均值，达到75分位，因此100号客户很可能属于零售商</p>
+<p>400号客户的Milk、Grocery和Detergent_Paper的消费低于平均值，甚至不到25分位，而Fresh的消费超过了25分位，Frozen更是高出平均值，超过75分位，因此400号客户应该是餐厅</p>
 
 </div>
 </div>
@@ -20116,9 +20116,9 @@ JBKJRCKRSCQSiUQikUgkkrDg/wNLRcRlpMXDpAAAAABJRU5ErkJggg==
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答:</strong>
-存在，索引154对应的样本就是这样的异常点。</p>
-<p>154在Milk、Grocery、Delicatessen都被判定为异常点，可以认为这个样本点可能代表一个小规模的客户，虽然从单个特征看数据是异常的，但这些异常特征的比例关系仍然有意义，因此不应该移除。</p>
-<p>被移除的点大部分都是只在某一特征出现异常值的样本，这些样本可能对后续的PCA分析产生干扰，因此有理由删掉这些异常值。</p>
+存在，索引65,66,75,128，154对应的样本就是这样的异常点。</p>
+<p>65的Fresh和Frozen低于25分位，66的Fresh和Delicatessen低于25分位，75的Grocery和Detergents_Paper低于25分位，128的Fresh和Delicatessen低于25分位，154的Milk、Grocery和Delicatessen均低于25分位</p>
+<p>这些点属于异常值样本，应当被移除。</p>
 
 </div>
 </div>
@@ -20537,7 +20537,10 @@ AElFTkSuQmCC
 <p><strong>回答:</strong>
 前两个主成分共表示了0.7252的方差</p>
 <p>前四个主成分共表示了0.9279的方差</p>
-<p>由上图可以看到前四个特征的权重变化趋势（此处仅分析前两个主成分，因为方差和已经达到0.725，可以涵盖大部分特征点信息了）：特征1，4的权重变化趋势是一致的，特征2,3的权重变化趋势是一致的。由此可以得出初步结论：在Fresh上花费较多的客户通常在Frozen上有较多的消费；而在Milk上有大量消费的客户通常也会消费大量的Grocery</p>
+<p>Dimension1：特征Deterg_Paper有很高的正向权重，Milk、Grocery的正权重也不错，说明这个维度的客户着重消费零售品，很可能是零售商</p>
+<p>Dimension2：特征Fresh、Frozen、Delicatessen都有明显的正权重，说明这个维度的客户的消费集中在食品上，可能是一间餐厅</p>
+<p>Dimension3：特征Fresh的正向权重极明显，同时还有个明显的Delicatessen的负向权重。说明这个客户的消费完全集中在Fresh和Delicatessen，可能是间小餐厅</p>
+<p>Dimension4：特征Frozen具有明显的正权重，Delicatessen的负权重也很明显，该客户的消费也是集中在食品上，可能是餐馆</p>
 
 </div>
 </div>
@@ -22345,7 +22348,9 @@ kiRJSjr/D0bdz5LZb+/VAAAAAElFTkSuQmCC
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答:</strong>
-综合考虑上述数据点和项目开始的统计信息，Segment 0代表了以消费Fresh和Frozen为主的客户；而Segment 1则代表了相对Segment 0大量消费Milk、Grocery以及Detergents_Paper的客户。</p>
+综合考虑上述数据点和项目开始的统计信息：</p>
+<p>集群0消费的Fresh和Frozen分别是8967和2081，相比集群1更接近平均值12000和3071；同时集群0的Milk、Grocery和Delicatessen远低于平均水平，因此集群0可能代表餐厅、饭馆</p>
+<p>集群1消费Milk、Grocery以及Detergents_Paper的额度分别是7042/10241/1159，（平均值是5796/7951/1525），均高于平均值或与平均值相当，因此集群1可能是杂货店和零售商</p>
 
 </div>
 </div>
@@ -22456,7 +22461,8 @@ Sample point 2 predicted to be in Cluster 0
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答：</strong>
-对于每个新客户，批发商可以将客户的采购预估数据取log值，再用pca将特征映射到两个主维度上，得到样本点Xi；之后可以运用KNN算法，计算到Xi距离最近的K个样本点，统计K个样本点中哪个Cluster的样本最多，我们就认为该客户属于哪个Cluster。</p>
+截止到问题7，我们将用户数据分成了两个集群，也就是两类标签：0和1。可以利用加入了标签特征的原始数据，训练一个监督学习的分类器（如SVM，DT等）。</p>
+<p>获得分类器后，我们可以按照上述数据处理流程，将新的客户的预估数据做变换处理，并将处理后的数据带入分类器，由分类器计算出客户的类别。</p>
 
 </div>
 </div>
